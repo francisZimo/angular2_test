@@ -1,21 +1,32 @@
-import{Component,Input} from '@angular/core';//先从angular中导入component和input装饰器
-import {Hero} from "./hero"
-@Component({ //使用@component装饰器创建元数据。在元数据中，我们指定选择器的名字，用以标记次组件的语速。然后导出这个组件类，以便其他组件可以使用它。
-    selector:'my-hero-detail',
-    template:`
-        <div *ngIf="hero">
-        <h2>{{hero.name}}details!</h2>
-        <div><label>id:{{hero.id}}</label></div>
-        <div>
-            <label>name:</label>
-            <input [(ngModel)]="hero.name" placeholder="name" type="text">
-        </div>
+import { Component, OnInit }      from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
+import { Location }               from '@angular/common';
 
-    `
+import { Hero }         from './hero';
+import { HeroService }  from './hero.service';
+@Component({
+    moduleId: module.id,
+    selector: 'my-hero-detail',
+    templateUrl: 'hero-detail.component.html',
 })
+export class HeroDetailComponent implements OnInit {
+    hero: Hero;
 
+    constructor(
+        private heroService: HeroService,
+        private route: ActivatedRoute,
+        private location: Location
+    ) {}
 
-export  class heroDetailComponent{
-    @Input()
-    hero:Hero;
+    ngOnInit(): void {
+        this.route.params.forEach((params: Params) => {
+            let id = +params['id'];
+            this.heroService.getHero(id)
+                .then(hero => this.hero = hero);
+        });
+    }
+
+    goBack(): void {
+        this.location.back();
+    }
 }
